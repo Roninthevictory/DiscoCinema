@@ -1,67 +1,111 @@
-// CinemaSync Discord Activity App - CSP Compliant
+// DiscoCinema Discord Activity App - CSP Compliant
 const CLIENT_ID = "1481396281644679259";
 const INVITE = "https://discord.gg/SJcdkaJXcf";
 
-function switchTab(viewId, el) {
-    console.log('Tab clicked:', viewId);
+function switchView(viewId, el) {
+    console.log('View switch:', viewId);
+    // Update nav tabs
     document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
     el.classList.add('active');
-    document.querySelectorAll('.content-view').forEach(v => v.classList.remove('active'));
-    document.getElementById('view-' + viewId).classList.add('active');
+    
+    // Update views
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    const targetView = document.getElementById(viewId);
+    if (targetView) {
+        targetView.classList.add('active');
+    }
 }
 
-function toggleLegal(type) {
-    document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.legal-text-section').forEach(s => s.classList.remove('active'));
-    document.getElementById('btn-' + type).classList.add('active');
-    document.getElementById('text-' + type).classList.add('active');
-    document.querySelector('.legal-content-scroll').scrollTop = 0;
+function toggleLegal(type, btn) {
+    console.log('Legal toggle:', type);
+    // Update legal tabs
+    document.querySelectorAll('.legal-tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    
+    // Update legal sections
+    document.querySelectorAll('.legal-section').forEach(s => s.classList.remove('active'));
+    const targetSection = document.getElementById(type);
+    if (targetSection) {
+        targetSection.classList.add('active');
+    }
+    
+    // Smooth scroll to top
+    const scrollContainer = document.querySelector('.legal-content');
+    if (scrollContainer) {
+        scrollContainer.scrollTo({ top: 0, behavior: 'smooth' });
+    }
 }
 
-function copyInvite() {
-    const status = document.getElementById('status');
+function copyInviteLink() {
+    const statusEl = document.getElementById('copy-status');
     const helper = document.getElementById('copy-helper');
-    helper.value = INVITE;
-    helper.select();
-    document.execCommand('copy');
-    status.textContent = "COPIED TO CLIPBOARD!";
-    status.style.color = "#23A55A";
-    setTimeout(() => {
-        status.textContent = "Click to copy link";
-        status.style.color = "#5865F2";
-    }, 2000);
+    
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(INVITE).then(() => {
+            showCopyFeedback(statusEl, 'Copied!');
+        });
+    } else {
+        // Fallback
+        helper.value = INVITE;
+        helper.select();
+        document.execCommand('copy');
+        showCopyFeedback(statusEl, 'Copied!');
+    }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    // Nav tabs
-    document.querySelectorAll('.nav-tab').forEach(tab => {
-        tab.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            const viewId = tab.dataset.tab || tab.textContent.trim().toLowerCase();
-            switchTab(viewId, tab);
-        });
-    });
+function showCopyFeedback(statusEl, message) {
+    if (statusEl) {
+        const original = statusEl.textContent;
+        statusEl.textContent = message;
+        statusEl.style.color = "var(--success)";
+        
+        setTimeout(() => {
+            statusEl.textContent = original;
+            statusEl.style.color = "var(--blurple)";
+        }, 2200);
+    }
+}
 
-    // Copy
-    const copyBtn = document.getElementById('copy-btn');
-    if (copyBtn) {
-        copyBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            copyInvite();
-        });
+// Universal event delegation
+document.addEventListener('click', (e) => {
+    // Nav tabs
+    const navTab = e.target.closest('.nav-tab');
+    if (navTab) {
+        e.preventDefault();
+        e.stopPropagation();
+        const viewId = navTab.dataset.view;
+        switchView(viewId, navTab);
+        return;
     }
 
-    // Legal toggles
-    document.querySelectorAll('.toggle-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            const type = btn.id.replace('btn-', '');
-            toggleLegal(type);
-        });
-    });
+    // Legal tabs
+    const legalTab = e.target.closest('.legal-tab');
+    if (legalTab) {
+        e.preventDefault();
+        e.stopPropagation();
+        const legalType = legalTab.dataset.legal;
+        toggleLegal(legalType, legalTab);
+        return;
+    }
 
-    console.log('CinemaSync Discord Activity ready');
+    // Copy box
+    const copyBox = e.target.closest('.copy-box');
+    if (copyBox) {
+        e.preventDefault();
+        e.stopPropagation();
+        copyInviteLink();
+        return;
+    }
 });
+
+// Keyboard accessibility
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && e.target.classList.contains('nav-tab')) {
+        e.preventDefault();
+        const viewId = e.target.dataset.view;
+        switchView(viewId, e.target);
+    }
+});
+
+console.log('DiscoCinema ready - Event delegation active');
+
