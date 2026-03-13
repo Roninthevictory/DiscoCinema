@@ -11,10 +11,10 @@ const io = new Server(server, {
 });
 
 // --- CONFIGURATION ---
+// IMPORTANT: Replace these with your actual Discord Application credentials
 const CLIENT_ID = "1481396281644679259"; // Replace with actual ID
 const CLIENT_SECRET = "TJGi3BSIQ81aEvn0BHnoAZYAmxp8i-E4";
-const ALLOWED_GUILD_ID = "987654321098765432"; // Replace with your Guild ID
-const SERVER_NAME = "CinamaSync";
+const SERVER_NAME = "𝐓𝐡𝐞 𝐍𝐞𝐰 𝐄𝐫𝐚 〣June 2026";
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'dist')));
@@ -44,6 +44,7 @@ app.post('/api/token', async (req, res) => {
     });
     res.json(response.data);
   } catch (error) {
+    console.error("Token Exchange Error:", error.response?.data || error.message);
     res.status(400).json({ error: 'Failed to exchange token' });
   }
 });
@@ -51,13 +52,14 @@ app.post('/api/token', async (req, res) => {
 // --- SOCKET LOGIC ---
 io.on('connection', (socket) => {
   socket.on('join-room', ({ guildId, user }) => {
-    // Bouncer Logic
-    if (guildId !== ALLOWED_GUILD_ID) {
-      socket.emit('access-denied', { message: "Unauthorized Sector Access" });
+    // UPDATED: Removed strict ALLOWED_GUILD_ID check to allow the app 
+    // to work in whichever guild it is currently installed/launched in.
+    if (!guildId) {
+      socket.emit('access-denied', { message: "No Guild Context Found" });
       return;
     }
 
-    users.set(socket.id, { ...user, id: socket.id });
+    users.set(socket.id, { ...user, id: socket.id, guildId });
     
     // Host Assignment
     if (!cinemaState.hostId) {
@@ -66,6 +68,8 @@ io.on('connection', (socket) => {
 
     socket.emit('sync-state', { state: cinemaState, hostId: cinemaState.hostId });
     io.emit('user-update', Array.from(users.values()));
+    
+    console.log(`User ${user.username} joined from Guild ${guildId}`);
   });
 
   socket.on('update-video', (newState) => {
@@ -102,11 +106,6 @@ io.on('connection', (socket) => {
     io.emit('user-update', Array.from(users.values()));
   });
 });
-
-// Render Keep-Alive
-setInterval(() => {
-  console.log(`[${new Date().toISOString()}] Ping: ${SERVER_NAME} heartbeat.`);
-}, 300000);
 
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'dist', 'index.html'));
