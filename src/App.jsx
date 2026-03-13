@@ -16,7 +16,7 @@ const DiscordSDK = window.DiscordSDK?.DiscordSDK || class {
 };
 
 // --- CONFIGURATION ---
-const CLIENT_ID = "123456789012345678"; 
+const CLIENT_ID = "1481396281644679259"; 
 const discordSdk = new DiscordSDK(CLIENT_ID);
 const socket = io();
 
