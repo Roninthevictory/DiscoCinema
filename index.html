@@ -3,20 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CinemaSync | Development</title>
-    <script src="https://unpkg.com/@discord/embedded-app-sdk/dist/index.js"></script>
+    <title>CinemaSync | Under Dev</title>
+    <script src="discord-sdk.js"></script>
     
     <style>
         :root {
             --blurple: #5865F2;
-            --blurple-hover: #4752C4;
             --bg-dark: #1E1F22;
             --card-bg: #2B2D31;
             --text-main: #FFFFFF;
             --text-muted: #B5BAC1;
         }
-
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         body {
             background-color: var(--bg-dark);
@@ -24,157 +21,340 @@
             font-family: 'gg sans', 'Helvetica Neue', Arial, sans-serif;
             margin: 0;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
             min-height: 100vh;
-            padding: 20px;
         }
 
         .container {
-            max-width: 450px;
-            width: 100%;
             text-align: center;
-            animation: fadeIn 0.5s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .badge {
-            display: inline-flex;
-            align-items: center;
-            background: rgba(88, 101, 242, 0.1);
-            color: var(--blurple);
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 0.7rem;
-            font-weight: 800;
-            letter-spacing: 0.8px;
-            margin-bottom: 20px;
-            border: 1px solid rgba(88, 101, 242, 0.2);
-            text-transform: uppercase;
-        }
-
-        .dot {
-            height: 8px;
-            width: 8px;
-            background-color: var(--blurple);
-            border-radius: 50%;
-            margin-right: 10px;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.4; }
-        }
-
-        h1 { font-size: 2.8rem; margin: 0; font-weight: 800; letter-spacing: -1px; }
-        p.tagline { color: var(--text-muted); font-size: 1.1rem; margin: 10px 0 30px 0; line-height: 1.4; }
-
-        .features {
             background: var(--card-bg);
-            border-radius: 12px;
-            padding: 20px;
-            text-align: left;
+            padding: 30px;
+            border-radius: 16px;
+            max-width: 400px;
+            width: 90%;
             border: 1px solid rgba(255, 255, 255, 0.05);
-            margin-bottom: 25px;
         }
 
-        .feature-item { display: flex; align-items: center; margin-bottom: 15px; }
-        .feature-item:last-child { margin-bottom: 0; }
-        .icon { margin-right: 12px; font-size: 1.2rem; }
-        .feat-text b { display: block; font-size: 0.9rem; }
-        .feat-text span { font-size: 0.75rem; color: var(--text-muted); }
+        h1 { font-size: 2.2rem; margin: 0 0 10px 0; }
+        p { color: var(--text-muted); margin-bottom: 25px; font-size: 0.9rem; }
 
-        .discord-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        .btn {
             background-color: var(--blurple);
             color: white;
+            text-decoration: none;
             padding: 16px;
+            display: block;
             border-radius: 8px;
-            font-weight: 600;
-            font-size: 1rem;
-            transition: background 0.2s, transform 0.1s;
-            width: 100%;
+            font-weight: 700;
             border: none;
             cursor: pointer;
+            width: 100%;
+            transition: background 0.2s;
         }
 
-        .discord-btn svg { width: 24px; height: 24px; margin-right: 10px; fill: white; }
-        .discord-btn:hover { background-color: var(--blurple-hover); }
-        .discord-btn:active { transform: scale(0.98); }
+        .btn:hover { background-color: #4752C4; }
 
-        footer { margin-top: 40px; font-size: 0.75rem; color: #4E5058; }
+        .copy-box {
+            margin-top: 20px;
+            background: #1e1f22;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            border: 1px solid #333;
+        }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <div class="badge"><div class="dot"></div> Under Development</div>
         <h1>CinemaSync</h1>
-        <p class="tagline">The next generation of synchronized watch parties. Built for communities.</p>
+        <p>This activity is currently under development by RVO INC.</p>
 
-        <div class="features">
-            <div class="feature-item">
-                <div class="icon">🎬</div>
-                <div class="feat-text">
-                    <b>High-Fidelity Sync</b>
-                    <span>Watch together with frame-accurate precision.</span>
-                </div>
-            </div>
-            <div class="feature-item">
-                <div class="icon">🛡️</div>
-                <div class="feat-text">
-                    <b>Safe & Secure</b>
-                    <span>Privacy-focused architecture by RVO INC.</span>
-                </div>
-            </div>
+        <button id="join-btn" class="btn">Join Discord Server</button>
+
+        <div class="copy-box" id="copy-btn">
+            <code>discord.gg/SJcdkaJXcf</code>
+            <div id="status" style="color: var(--blurple); font-size: 0.6rem; margin-top: 5px; font-weight: bold;">CLICK TO COPY</div>
         </div>
-
-        <button id="join-btn" class="discord-btn">
-            <svg viewBox="0 0 127.14 96.36"><path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.06,72.06,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.71,32.65-1.82,56.6.39,80.21a105.73,105.73,0,0,0,32.17,16.15,77.7,77.7,0,0,0,6.89-11.11,68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1,105.25,105.25,0,0,0,32.19-16.14c2.64-27.38-4.52-51.06-19.34-72.14ZM42.45,65.69C36.18,65.69,31,60,31,53s5.07-12.73,11.41-12.73S54,45.92,54,53,48.82,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5.07-12.73,11.44-12.73S96.14,45.92,96.14,53,91,65.69,84.69,65.69Z"/></svg>
-            Join our Discord Server
-        </button>
-
-        <footer>Built by RVO INC &copy; 2026</footer>
     </div>
 
     <script>
-        // Your Specific IDs
-        const CLIENT_ID = "1481396281644679259"; 
-        const SERVER_INVITE = "https://discord.gg/SJcdkaJXcf";
-        const discordSdk = new window.discord.DiscordSDK(CLIENT_ID);
+        const CLIENT_ID = "1481396281644679259";
+        const INVITE = "https://discord.gg/SJcdkaJXcf";
 
         async function init() {
-            try {
-                await discordSdk.ready();
-                
-                // Authorize silently to show the app is interactive
-                await discordSdk.commands.authorize({
-                    client_id: CLIENT_ID,
-                    response_type: 'code',
-                    scope: ['identify', 'guilds'],
-                });
+            const btn = document.getElementById('join-btn');
 
-                // Listen for clicks and use the SDK command to open the link
-                document.getElementById('join-btn').addEventListener('click', () => {
-                    discordSdk.commands.openExternalLink({ url: SERVER_INVITE });
-                });
+            // Wait a moment for the Proxy to pull the real SDK
+            setTimeout(async () => {
+                const DiscordSDK = window.discordSdk ? window.discordSdk.DiscordSDK : (window.discord ? window.discord.DiscordSDK : null);
 
-            } catch (e) {
-                console.error("SDK Error:", e);
-                // Standard browser fallback
-                document.getElementById('join-btn').addEventListener('click', () => {
-                    window.open(SERVER_INVITE, '_blank');
-                });
-            }
+                if (DiscordSDK) {
+                    const discordSdk = new DiscordSDK(CLIENT_ID);
+                    try {
+                        await discordSdk.ready();
+                        btn.onclick = () => discordSdk.commands.openExternalLink({ url: INVITE });
+                        console.log("CinemaSync: SDK Mode Active");
+                    } catch (e) {
+                        btn.onclick = () => window.open(INVITE, '_blank');
+                    }
+                } else {
+                    // Fallback if SDK is blocked by Discord CSP
+                    btn.onclick = () => window.open(INVITE, '_blank');
+                    console.log("CinemaSync: Browser Mode Active");
+                }
+            }, 1000);
+
+            // Copy Logic
+            document.getElementById('copy-btn').onclick = () => {
+                navigator.clipboard.writeText(INVITE);
+                document.getElementById('status').innerText = "COPIED!";
+                setTimeout(() => { document.getElementById('status').innerText = "CLICK TO COPY"; }, 2000);
+            };
         }
+
+        init();
+    </script>
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CinemaSync | Under Dev</title>
+    <script src="discord-sdk.js"></script>
+    
+    <style>
+        :root {
+            --blurple: #5865F2;
+            --bg-dark: #1E1F22;
+            --card-bg: #2B2D31;
+            --text-main: #FFFFFF;
+            --text-muted: #B5BAC1;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'gg sans', 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            text-align: center;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 16px;
+            max-width: 400px;
+            width: 90%;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        h1 { font-size: 2.2rem; margin: 0 0 10px 0; }
+        p { color: var(--text-muted); margin-bottom: 25px; font-size: 0.9rem; }
+
+        .btn {
+            background-color: var(--blurple);
+            color: white;
+            text-decoration: none;
+            padding: 16px;
+            display: block;
+            border-radius: 8px;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.2s;
+        }
+
+        .btn:hover { background-color: #4752C4; }
+
+        .copy-box {
+            margin-top: 20px;
+            background: #1e1f22;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            border: 1px solid #333;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>CinemaSync</h1>
+        <p>This activity is currently under development by RVO INC.</p>
+
+        <button id="join-btn" class="btn">Join Discord Server</button>
+
+        <div class="copy-box" id="copy-btn">
+            <code>discord.gg/SJcdkaJXcf</code>
+            <div id="status" style="color: var(--blurple); font-size: 0.6rem; margin-top: 5px; font-weight: bold;">CLICK TO COPY</div>
+        </div>
+    </div>
+
+    <script>
+        const CLIENT_ID = "1481396281644679259";
+        const INVITE = "https://discord.gg/SJcdkaJXcf";
+
+        async function init() {
+            const btn = document.getElementById('join-btn');
+
+            // Wait a moment for the Proxy to pull the real SDK
+            setTimeout(async () => {
+                const DiscordSDK = window.discordSdk ? window.discordSdk.DiscordSDK : (window.discord ? window.discord.DiscordSDK : null);
+
+                if (DiscordSDK) {
+                    const discordSdk = new DiscordSDK(CLIENT_ID);
+                    try {
+                        await discordSdk.ready();
+                        btn.onclick = () => discordSdk.commands.openExternalLink({ url: INVITE });
+                        console.log("CinemaSync: SDK Mode Active");
+                    } catch (e) {
+                        btn.onclick = () => window.open(INVITE, '_blank');
+                    }
+                } else {
+                    // Fallback if SDK is blocked by Discord CSP
+                    btn.onclick = () => window.open(INVITE, '_blank');
+                    console.log("CinemaSync: Browser Mode Active");
+                }
+            }, 1000);
+
+            // Copy Logic
+            document.getElementById('copy-btn').onclick = () => {
+                navigator.clipboard.writeText(INVITE);
+                document.getElementById('status').innerText = "COPIED!";
+                setTimeout(() => { document.getElementById('status').innerText = "CLICK TO COPY"; }, 2000);
+            };
+        }
+
+        init();
+    </script>
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CinemaSync | Under Dev</title>
+    <script src="discord-sdk.js"></script>
+    
+    <style>
+        :root {
+            --blurple: #5865F2;
+            --bg-dark: #1E1F22;
+            --card-bg: #2B2D31;
+            --text-main: #FFFFFF;
+            --text-muted: #B5BAC1;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'gg sans', 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            text-align: center;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 16px;
+            max-width: 400px;
+            width: 90%;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        h1 { font-size: 2.2rem; margin: 0 0 10px 0; }
+        p { color: var(--text-muted); margin-bottom: 25px; font-size: 0.9rem; }
+
+        .btn {
+            background-color: var(--blurple);
+            color: white;
+            text-decoration: none;
+            padding: 16px;
+            display: block;
+            border-radius: 8px;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.2s;
+        }
+
+        .btn:hover { background-color: #4752C4; }
+
+        .copy-box {
+            margin-top: 20px;
+            background: #1e1f22;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            border: 1px solid #333;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>CinemaSync</h1>
+        <p>This activity is currently under development by RVO INC.</p>
+
+        <button id="join-btn" class="btn">Join Discord Server</button>
+
+        <div class="copy-box" id="copy-btn">
+            <code>discord.gg/SJcdkaJXcf</code>
+            <div id="status" style="color: var(--blurple); font-size: 0.6rem; margin-top: 5px; font-weight: bold;">CLICK TO COPY</div>
+        </div>
+    </div>
+
+    <script>
+        const CLIENT_ID = "1481396281644679259";
+        const INVITE = "https://discord.gg/SJcdkaJXcf";
+
+        async function init() {
+            const btn = document.getElementById('join-btn');
+
+            // Wait a moment for the Proxy to pull the real SDK
+            setTimeout(async () => {
+                const DiscordSDK = window.discordSdk ? window.discordSdk.DiscordSDK : (window.discord ? window.discord.DiscordSDK : null);
+
+                if (DiscordSDK) {
+                    const discordSdk = new DiscordSDK(CLIENT_ID);
+                    try {
+                        await discordSdk.ready();
+                        btn.onclick = () => discordSdk.commands.openExternalLink({ url: INVITE });
+                        console.log("CinemaSync: SDK Mode Active");
+                    } catch (e) {
+                        btn.onclick = () => window.open(INVITE, '_blank');
+                    }
+                } else {
+                    // Fallback if SDK is blocked by Discord CSP
+                    btn.onclick = () => window.open(INVITE, '_blank');
+                    console.log("CinemaSync: Browser Mode Active");
+                }
+            }, 1000);
+
+            // Copy Logic
+            document.getElementById('copy-btn').onclick = () => {
+                navigator.clipboard.writeText(INVITE);
+                document.getElementById('status').innerText = "COPIED!";
+                setTimeout(() => { document.getElementById('status').innerText = "CLICK TO COPY"; }, 2000);
+            };
+        }
+
         init();
     </script>
 </body>
