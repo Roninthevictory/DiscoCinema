@@ -1,6 +1,6 @@
 /**
  * DiscoCinema Discord Activity App Logic
- * Optimized for Iframe Stability, Event Delegation, and Scale Management
+ * v1.0.6 - Fixed disappearance bug in legal sub-tabs
  */
 
 const CONFIG = {
@@ -11,47 +11,57 @@ const CONFIG = {
 };
 
 /**
- * Handle View Switching (Main Navigation)
+ * Handle Main View Navigation
  */
 function handleViewSwitch(viewId, triggerEl) {
     if (!viewId || !triggerEl) return;
 
-    // Update Nav UI
+    // 1. Update Buttons
     document.querySelectorAll('.navbar .nav-tab').forEach(btn => btn.classList.remove('active'));
     triggerEl.classList.add('active');
 
-    // Update View UI
-    document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
+    // 2. Switch Views
+    document.querySelectorAll('.view').forEach(v => {
+        v.classList.remove('active');
+        v.style.display = 'none';
+    });
+
     const target = document.getElementById(viewId);
     if (target) {
         target.classList.add('active');
-        // Reset scroll position when switching views
-        const container = target.querySelector('.glass-container');
-        if (container) container.scrollTo(0, 0);
+        target.style.display = 'flex';
     }
 }
 
 /**
- * Handle Legal Sub-tab Switching
+ * Handle Legal Sub-navigation
  */
 function handleLegalSwitch(legalId, triggerEl) {
     if (!legalId || !triggerEl) return;
 
-    // Update sub-tab buttons within the legal view
-    document.querySelectorAll('.legal-subtab').forEach(btn => btn.classList.remove('active'));
+    // 1. Target specifically within legal container
+    const legalParent = document.getElementById('legal');
+    if (!legalParent) return;
+
+    // 2. Update sub-tab buttons
+    legalParent.querySelectorAll('.legal-subtab').forEach(btn => btn.classList.remove('active'));
     triggerEl.classList.add('active');
 
-    // Update displayed legal content sections
-    document.querySelectorAll('.legal-section').forEach(sec => sec.classList.remove('active'));
+    // 3. Update sections
+    legalParent.querySelectorAll('.legal-section').forEach(sec => {
+        sec.classList.remove('active');
+        sec.style.display = 'none';
+    });
+
     const target = document.getElementById(legalId);
     if (target) {
         target.classList.add('active');
+        target.style.display = 'flex'; // Ensure it shows as flex for centering
     }
 }
 
 /**
- * Enhanced Clipboard Functionality
- * Uses modern API with a robust fallback for iframe environments
+ * Clipboard handling with robust fallback
  */
 async function copyToClipboard(text, statusId) {
     const statusEl = document.getElementById(statusId);
@@ -64,51 +74,48 @@ async function copyToClipboard(text, statusId) {
         el.style.left = '-9999px';
         document.body.appendChild(el);
         el.select();
-        const success = document.execCommand('copy');
+        const ok = document.execCommand('copy');
         document.body.removeChild(el);
-        return success;
+        return ok;
     };
 
     try {
-        let successful = false;
+        let success = false;
         if (navigator.clipboard && window.isSecureContext) {
             await navigator.clipboard.writeText(text);
-            successful = true;
+            success = true;
         } else {
-            successful = fallbackCopy(text);
+            success = fallbackCopy(text);
         }
         
-        if (successful && statusEl) {
-            const originalText = statusEl.textContent;
+        if (success && statusEl) {
+            const old = statusEl.textContent;
             statusEl.textContent = "COPIED!";
             statusEl.style.color = "var(--success)";
-            
             setTimeout(() => {
-                statusEl.textContent = originalText;
+                statusEl.textContent = old;
                 statusEl.style.color = "";
             }, 1500);
         }
-    } catch (err) {
-        console.error('Clipboard error:', err);
+    } catch (e) {
+        console.error("Copy error", e);
     }
 }
 
 /**
  * Global Event Delegation
- * Centralized handling for better performance in the Discord Activity environment
- * This replaces all inline 'onclick' attributes from the HTML.
  */
 document.addEventListener('click', (e) => {
-    // 1. Legal Section Sub-tabs (Handle FIRST and stop propagation)
+    // 1. Legal Sub-tabs (Handle first to stop propagation)
     const legalBtn = e.target.closest('.legal-subtab');
     if (legalBtn && legalBtn.dataset.legal) {
         e.preventDefault();
-        e.stopPropagation(); // Prevents this click from reaching main nav logic
+        e.stopPropagation();
         handleLegalSwitch(legalBtn.dataset.legal, legalBtn);
         return;
     }
 
-    // 2. Main Navigation Tabs (Home / Legal)
+    // 2. Main Nav
     const navBtn = e.target.closest('.nav-tab:not(.legal-subtab)');
     if (navBtn && navBtn.dataset.view) {
         e.preventDefault();
@@ -116,50 +123,22 @@ document.addEventListener('click', (e) => {
         return;
     }
 
-    // 3. Link Copying (Discord Invite and Legal URLs)
+    // 3. Copy Boxes
     const copyBox = e.target.closest('.copy-box');
     if (copyBox) {
-        e.preventDefault();
-        const id = copyBox.id;
         const statusEl = copyBox.querySelector('.copy-status');
-        const statusId = statusEl ? statusEl.id : null;
+        if (!statusEl) return;
         
-        if (!statusId) return;
-
-        switch(id) {
-            case 'discord-copy': copyToClipboard(CONFIG.INVITE, statusId); break;
-            case 'tos-copy':     copyToClipboard(CONFIG.TOS, statusId); break;
-            case 'privacy-copy': copyToClipboard(CONFIG.PRIVACY, statusId); break;
-            case 'dmca-copy':    copyToClipboard(CONFIG.DMCA, statusId); break;
-        }
+        const id = copyBox.id;
+        if (id === 'discord-copy') copyToClipboard(CONFIG.INVITE, statusEl.id);
+        else if (id === 'tos-copy') copyToClipboard(CONFIG.TOS, statusEl.id);
+        else if (id === 'privacy-copy') copyToClipboard(CONFIG.PRIVACY, statusEl.id);
+        else if (id === 'dmca-copy') copyToClipboard(CONFIG.DMCA, statusEl.id);
     }
 });
 
-/**
- * Window Resize/Scaling Helper
- */
-function onResize() {
-    // Ensure the body maintains focus for keyboard accessibility
-    if (document.activeElement === document.body || document.activeElement === null) {
-        document.body.focus();
-    }
-}
-
-/**
- * App Initialization
- */
-function initApp() {
-    console.log("DiscoCinema App Logic V1.0.4 Initialized");
-    window.addEventListener('resize', onResize);
-    
-    // Set initial focus
-    document.body.tabIndex = -1;
-    document.body.focus();
-}
-
-// Ensure init runs after DOM is ready
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initApp);
-} else {
-    initApp();
-}
+window.onload = () => {
+    console.log("DiscoCinema UI Ready");
+    // Ensure legal view starts with correct state just in case
+    handleLegalSwitch('tos', document.querySelector('.legal-subtab[data-legal="tos"]'));
+};
