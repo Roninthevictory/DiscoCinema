@@ -111,7 +111,7 @@
 
         .nav-tab.active {
             background: var(--gradient-blurple);
-            color: #ffffff !important; /* White */
+            color: #ffffff23 !important; /* White */
             box-shadow: 0 4px 16px rgba(147, 51, 234, 0.5); /* Bright Purple shadow */
         }
 
@@ -347,10 +347,22 @@
         /* Legal Tab */
         .legal-container {
             padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            overflow: hidden;
+        }
+
+        .legal-left, .features-right {
             display: flex;
             flex-direction: column;
             gap: 20px;
-            overflow: hidden;
+        }
+
+        @media (max-width: 768px) {
+            .legal-container {
+                grid-template-columns: 1fr;
+            }
         }
 
         .legal-tabs {
@@ -534,7 +546,7 @@
                     <a href="https://discord.gg/SJcdkaJXcf" target="_blank" class="discord-btn">
                         Join Discord
                     </a>
-                    <div class="copy-box" role="button" tabindex="0" aria-label="Copy invite">
+                    <div id="discord-copy" class="copy-box" role="button" tabindex="0" aria-label="Copy Discord invite">
                         <div class="copy-text">discord.gg/SJcdkaJXcf</div>
                         <div class="copy-status" id="copy-status">Click to copy</div>
                     </div>
@@ -580,33 +592,86 @@
         <!-- Legal View -->
         <section id="legal" class="view">
             <div class="glass-container legal-container">
-        <div class="legal-tabs">
-                    <button class="legal-tab active" data-legal="legal-docs">Legal</button>
-                    <button class="legal-tab" data-legal="dmca">DMCA</button>
-                </div>
-                
-                <div class="legal-content">
-                    <div id="legal-docs" class="legal-section active">
-                        <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 16px; text-align: center;">
-                            <h2 style="margin-bottom: 24px;">Legal Documents</h2>
-                            <a href="https://sites.google.com/view/discocinema/terms" target="_blank" class="discord-btn legal-btn">
-                                📄 Terms of Service
-                            </a>
-                            <a href="https://sites.google.com/view/discocinema/privacy" target="_blank" class="discord-btn legal-btn">
-                                🔒 Privacy Policy
-                            </a>
-                        </div>
+                <div class="legal-left">
+                    <div class="legal-tabs">
+                        <button class="legal-tab active" data-legal="legal-docs">Legal</button>
+                        <button class="legal-tab" data-legal="dmca">DMCA</button>
                     </div>
                     
-                    <div id="dmca" class="legal-section">
-                        <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 16px; text-align: center;">
-                            <h2 style="margin-bottom: 24px;">DMCA Takedown Requests</h2>
-                            <a href="https://sites.google.com/view/discocinema/dmca" target="_blank" class="discord-btn legal-btn" style="background: #FF6B6B;">
-                                ⚖️ DMCA Report
-                            </a>
-                            <p style="color: var(--text-secondary); font-size: 0.9rem; max-width: 400px;">
-                                For copyright infringement reports and takedown requests.
-                            </p>
+                    <div class="legal-content">
+                        <div id="legal-docs" class="legal-section active">
+                            <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 24px; text-align: center;">
+                                <h2 style="margin-bottom: 24px;">Legal Documents</h2>
+                                
+                                <div style="text-align: center; margin-bottom: 8px; font-weight: 600; color: var(--text-primary);">
+                                    📄 Terms of Service
+                                </div>
+                                <div id="tos-copy" class="copy-box legal-copy-box" role="button" tabindex="0" aria-label="Copy ToS link">
+                                    <div class="copy-text">sites.google.com/view/discocinema/terms</div>
+                                    <div class="copy-status" id="tos-copy-status">Click to copy</div>
+                                </div>
+                                
+                                <div style="text-align: center; margin-bottom: 8px; font-weight: 600; color: var(--text-primary);">
+                                    🔒 Privacy Policy
+                                </div>
+                                <div id="privacy-copy" class="copy-box legal-copy-box" role="button" tabindex="0" aria-label="Copy Privacy link">
+                                    <div class="copy-text">sites.google.com/view/discocinema/privacy</div>
+                                    <div class="copy-status" id="privacy-copy-status">Click to copy</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="dmca" class="legal-section">
+                            <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 24px; text-align: center;">
+                                <h2 style="margin-bottom: 24px;">DMCA Takedown Requests</h2>
+                                
+                                <div style="text-align: center; margin-bottom: 8px; font-weight: 600; color: var(--text-primary);">
+                                    ⚖️ DMCA Report
+                                </div>
+                                <div id="dmca-copy" class="copy-box legal-copy-box" role="button" tabindex="0" aria-label="Copy DMCA link" style="border-color: rgba(255, 107, 107, 0.5);">
+                                    <div class="copy-text">sites.google.com/view/discocinema/dmca</div>
+                                    <div class="copy-status" id="dmca-copy-status">Click to copy</div>
+                                </div>
+                                <p style="color: var(--text-secondary); font-size: 0.9rem; max-width: 400px;">
+                                    For copyright infringement reports and takedown requests.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="features-right">
+                    <div style="background: var(--glass-bg); backdrop-filter: blur(25px); border: 1px solid var(--glass-border); border-radius: 16px; padding: 20px; height: fit-content;">
+                        <h3 style="text-align: center; margin-bottom: 20px; color: var(--text-primary); font-size: 1.3rem; font-weight: 700;">Features</h3>
+                        <div class="features-grid" style="gap: 12px;">
+                            <div class="feature">
+                                <div class="feature-icon">⚡</div>
+                                <div class="feature-content">
+                                    <h3>Frame Perfect</h3>
+                                    <p>Binary sync protocol - zero drift, perfect alignment.</p>
+                                </div>
+                            </div>
+                            <div class="feature">
+                                <div class="feature-icon">👑</div>
+                                <div class="feature-content">
+                                    <h3>Host Controls</h3>
+                                    <p>Full playback authority with participant management.</p>
+                                </div>
+                            </div>
+                            <div class="feature">
+                                <div class="feature-icon">💬</div>
+                                <div class="feature-content">
+                                    <h3>Live Chat</h3>
+                                    <p>Stay connected without leaving the theater.</p>
+                                </div>
+                            </div>
+                            <div class="feature">
+                                <div class="feature-icon">🔒</div>
+                                <div class="feature-content">
+                                    <h3>Private</h3>
+                                    <p>No cloud, no tracking. Your data stays yours.</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
