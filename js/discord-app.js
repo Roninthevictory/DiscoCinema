@@ -3,6 +3,9 @@
 // Constants
 const CLIENT_ID = "1481396281644679259";
 const INVITE = "https://discord.gg/SJcdkaJXcf";
+const TOS_URL = "https://sites.google.com/view/discocinema/terms";
+const PRIVACY_URL = "https://sites.google.com/view/discocinema/privacy";
+const DMCA_URL = "https://sites.google.com/view/discocinema/dmca";
 
 // View switching
 function switchView(viewId, el) {
@@ -40,21 +43,53 @@ function toggleLegal(type, btn) {
     }
 }
 
-// Copy invite functionality
-function copyInviteLink() {
-    const statusEl = document.getElementById('copy-status');
+// Universal copy function
+function copyText(text, statusEl) {
     const helper = document.getElementById('copy-helper');
     
     if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(INVITE).then(() => {
+        navigator.clipboard.writeText(text).then(() => {
             showCopyFeedback(statusEl, 'Copied!');
         }).catch(err => {
             console.error('Clipboard failed:', err);
-            fallbackCopy(helper, statusEl);
+            fallbackCopyText(helper, text, statusEl);
         });
     } else {
-        fallbackCopy(helper, statusEl);
+        fallbackCopyText(helper, text, statusEl);
     }
+}
+
+function fallbackCopyText(helper, text, statusEl) {
+    helper.value = text;
+    helper.select();
+    try {
+        document.execCommand('copy');
+        showCopyFeedback(statusEl, 'Copied!');
+    } catch (err) {
+        console.error('Fallback copy failed:', err);
+        showCopyFeedback(statusEl, 'Copy failed');
+    }
+}
+
+// Specific copy functions
+function copyInviteLink() {
+    const statusEl = document.getElementById('copy-status');
+    copyText(INVITE, statusEl);
+}
+
+function copyTosLink() {
+    const statusEl = document.getElementById('tos-copy-status');
+    copyText(TOS_URL, statusEl);
+}
+
+function copyPrivacyLink() {
+    const statusEl = document.getElementById('privacy-copy-status');
+    copyText(PRIVACY_URL, statusEl);
+}
+
+function copyDmcaLink() {
+    const statusEl = document.getElementById('dmca-copy-status');
+    copyText(DMCA_URL, statusEl);
 }
 
 function fallbackCopy(helper, statusEl) {
@@ -113,11 +148,26 @@ document.addEventListener('click', (e) => {
         return;
     }
 
-    // Copy box
-    const copyBox = e.target.closest('.copy-box');
+    // Copy boxes (Discord + legal)
+    const copyBox = e.target.closest('.copy-box, .legal-copy-box');
     if (copyBox) {
         e.stopPropagation();
-        copyInviteLink();
+        const copyId = copyBox.id || 'default';
+        switch(copyId) {
+            case 'discord-copy':
+            case '': // fallback
+                copyInviteLink();
+                break;
+            case 'tos-copy':
+                copyTosLink();
+                break;
+            case 'privacy-copy':
+                copyPrivacyLink();
+                break;
+            case 'dmca-copy':
+                copyDmcaLink();
+                break;
+        }
         return;
     }
 }, true); // Use capture phase for iframe reliability
@@ -193,6 +243,9 @@ window.DiscoCinemaApp = {
     switchView,
     toggleLegal,
     copyInviteLink,
+    copyTosLink,
+    copyPrivacyLink,
+    copyDmcaLink,
     initResizeHandler
 };
 
