@@ -15,12 +15,13 @@ const CONFIG = {
  */
 function handleViewSwitch(viewId, triggerEl) {
     if (!viewId || !triggerEl) return;
+    console.log('Switching to view:', viewId);
 
-    // 1. Update Buttons
-    document.querySelectorAll('.navbar .nav-tab').forEach(btn => btn.classList.remove('active'));
+    // Update Navbar buttons
+    document.querySelectorAll('.navbar .nav-tab:not(.legal-subtab)').forEach(btn => btn.classList.remove('active'));
     triggerEl.classList.add('active');
 
-    // 2. Switch Views
+    // Switch main views
     document.querySelectorAll('.view').forEach(v => {
         v.classList.remove('active');
         v.style.display = 'none';
@@ -30,6 +31,7 @@ function handleViewSwitch(viewId, triggerEl) {
     if (target) {
         target.classList.add('active');
         target.style.display = 'flex';
+        target.style.opacity = '1';
     }
 }
 
@@ -38,17 +40,20 @@ function handleViewSwitch(viewId, triggerEl) {
  */
 function handleLegalSwitch(legalId, triggerEl) {
     if (!legalId || !triggerEl) return;
+    console.log('Legal switch to:', legalId);
 
-    // 1. Target specifically within legal container
     const legalParent = document.getElementById('legal');
-    if (!legalParent) return;
+    if (!legalParent) {
+        console.warn('Legal container not found');
+        return;
+    }
 
-    // 2. Update sub-tab buttons
+    // Update legal sub-tabs only
     legalParent.querySelectorAll('.legal-subtab').forEach(btn => btn.classList.remove('active'));
     triggerEl.classList.add('active');
 
-    // 3. Update sections
-    legalParent.querySelectorAll('.legal-section').forEach(sec => {
+    // Switch legal sections
+    document.querySelectorAll('.legal-section').forEach(sec => {
         sec.classList.remove('active');
         sec.style.display = 'none';
     });
@@ -56,69 +61,83 @@ function handleLegalSwitch(legalId, triggerEl) {
     const target = document.getElementById(legalId);
     if (target) {
         target.classList.add('active');
-        target.style.display = 'flex'; // Ensure it shows as flex for centering
+        target.style.display = 'flex';
     }
 }
 
 /**
  * Clipboard handling with robust fallback
  */
-async function copyToClipboard(text, statusId) {
-    const statusEl = document.getElementById(statusId);
+async function copyToClipboard(text, statusEl) {
+    if (!statusEl) return;
     
     const fallbackCopy = (str) => {
         const el = document.createElement('textarea');
         el.value = str;
-        el.setAttribute('readonly', '');
-        el.style.position = 'absolute';
+        el.style.position = 'fixed';
         el.style.left = '-9999px';
+        el.style.opacity = '0';
+        el.setAttribute('readonly', '');
         document.body.appendChild(el);
+        const wasSelectable = document.body.style.userSelect;
+        document.body.style.userSelect = 'text';
+        el.focus();
         el.select();
         const ok = document.execCommand('copy');
         document.body.removeChild(el);
+        document.body.style.userSelect = wasSelectable;
         return ok;
     };
 
     try {
         let success = false;
-        if (navigator.clipboard && window.isSecureContext) {
+        if (navigator.clipboard?.writeText) {
             await navigator.clipboard.writeText(text);
             success = true;
         } else {
             success = fallbackCopy(text);
         }
         
-        if (success && statusEl) {
-            const old = statusEl.textContent;
-            statusEl.textContent = "COPIED!";
-            statusEl.style.color = "var(--success)";
-            setTimeout(() => {
-                statusEl.textContent = old;
-                statusEl.style.color = "";
-            }, 1500);
-        }
+        const oldText = statusEl.textContent;
+        statusEl.textContent = 'COPIED!';
+        statusEl.style.color = 'var(--success)';
+        setTimeout(() => {
+            statusEl.textContent = oldText;
+            statusEl.style.color = '';
+        }, 1500);
+        return success;
     } catch (e) {
-        console.error("Copy error", e);
+        console.error('Copy failed:', e);
+        statusEl.textContent = 'FAILED';
+        statusEl.style.color = '#ef4444';
+        setTimeout(() => {
+            statusEl.textContent = 'CLICK TO COPY';
+            statusEl.style.color = '';
+        }, 1500);
     }
 }
 
 /**
  * Global Event Delegation
  */
-document.addEventListener('click', (e) => {
-    // 1. Legal Sub-tabs (Handle first to stop propagation)
+document.addEventListener('click', async (e) => {
+    console.log('Click target:', e.target); // Debug
+    
+    // 1. Legal Sub-tabs
     const legalBtn = e.target.closest('.legal-subtab');
     if (legalBtn && legalBtn.dataset.legal) {
         e.preventDefault();
-        e.stopPropagation();
+        console.log('Legal tab clicked:', legalBtn.dataset.legal);
         handleLegalSwitch(legalBtn.dataset.legal, legalBtn);
         return;
     }
 
     // 2. Main Nav
-    const navBtn = e.target.closest('.nav-tab:not(.legal-subtab)');
+    const navBtn = e.target.closest('.nav-tab');
     if (navBtn && navBtn.dataset.view) {
+        if (navBtn.classList.contains('legal-subtab')) return; // Skip if legal
         e.preventDefault();
+        console.log('Nav clicked:', navBtn.dataset.view);
         handleViewSwitch(navBtn.dataset.view, navBtn);
         return;
     }
@@ -126,19 +145,33 @@ document.addEventListener('click', (e) => {
     // 3. Copy Boxes
     const copyBox = e.target.closest('.copy-box');
     if (copyBox) {
+        e.preventDefault();
         const statusEl = copyBox.querySelector('.copy-status');
         if (!statusEl) return;
         
         const id = copyBox.id;
-        if (id === 'discord-copy') copyToClipboard(CONFIG.INVITE, statusEl.id);
-        else if (id === 'tos-copy') copyToClipboard(CONFIG.TOS, statusEl.id);
-        else if (id === 'privacy-copy') copyToClipboard(CONFIG.PRIVACY, statusEl.id);
-        else if (id === 'dmca-copy') copyToClipboard(CONFIG.DMCA, statusEl.id);
+        let text = '';
+        if (id === 'discord-copy') text = CONFIG.INVITE;
+        else if (id === 'tos-copy') text = CONFIG.TOS;
+        else if (id === 'privacy-copy') text = CONFIG.PRIVACY;
+        else if (id === 'dmca-copy') text = CONFIG.DMCA;
+        
+        if (text) {
+            console.log('Copying:', text);
+            await copyToClipboard(text, statusEl);
+        }
     }
 });
 
-window.onload = () => {
+document.addEventListener('DOMContentLoaded', () => {
     console.log("DiscoCinema UI Ready");
-    // Ensure legal view starts with correct state just in case
-    handleLegalSwitch('tos', document.querySelector('.legal-subtab[data-legal="tos"]'));
-};
+    
+    // Set initial legal state
+    const legalView = document.getElementById('legal');
+    if (legalView) {
+        handleLegalSwitch('tos', document.querySelector('.legal-subtab[data-legal="tos"]'));
+    }
+    
+    // Ensure home is active initially
+    handleViewSwitch('home', document.querySelector('.nav-tab[data-view="home"]'));
+});
